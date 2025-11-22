@@ -798,11 +798,11 @@ static esp_err_t esp_littlefs_by_label(const char* label, int * index){
 
     if(!index) return ESP_ERR_INVALID_ARG;
     if(!label){
-        // Search for first dat partition with subtype "littlefs"
+        // Search for first dat partition with label littlefs
         partition = esp_partition_find_first(
                 ESP_PARTITION_TYPE_DATA,
                 ESP_PARTITION_SUBTYPE_DATA_LITTLEFS,
-                NULL
+                label
         );
         if(!partition){
             ESP_LOGE(ESP_LITTLEFS_TAG, "No data partition with subtype \"littlefs\" found");
