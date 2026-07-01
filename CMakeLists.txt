@@ -17,15 +17,7 @@ endif()
 list(APPEND pub_requires esp_partition)
 list(APPEND priv_requires esptool_py spi_flash vfs)
 
-# Custom block device support - expose lfs.h for direct filesystem access
-# Enable via Kconfig CONFIG_LITTLEFS_CUSTOM_BLOCK_DEVICE or CMake variable
-option(LITTLEFS_CUSTOM_BLOCK_DEVICE "Enable custom block device support" OFF)
-
-set(PUBLIC_INCLUDE_DIRS include)
-if(LITTLEFS_CUSTOM_BLOCK_DEVICE OR CONFIG_LITTLEFS_CUSTOM_BLOCK_DEVICE)
-    # Expose internal littlefs headers for custom block device implementations
-    list(APPEND PUBLIC_INCLUDE_DIRS src src/littlefs)
-endif()
+set(PUBLIC_INCLUDE_DIRS include src src/littlefs)
 
 idf_component_register(
     SRCS ${SOURCES}
