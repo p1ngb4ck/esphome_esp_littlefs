@@ -81,3 +81,35 @@ function(littlefs_create_partition_image partition base_dir)
 		fail_at_build_time(littlefs_${partition}_bin "${message}")
 	endif()
 endfunction()
+
+# ------------------------------------------------------------------------------------------
+# ESPHome pre-fill hand-over (see Kconfig: values come from binary_storage codegen via
+# sdkconfig; empty means the feature is off and nothing below runs).
+#
+# Builds the image for the named partition with FLASH_IN_PROJECT, so it lands in
+# flasher_args.json and thereby in every factory/serial flash without any toolchain help.
+# Additionally emits <project>.prefill-ota.bin = [64-byte header][app][littlefs image] for
+# over-the-air delivery: a stock OTA sender streams that file as-is, and the (patched, an
+# esphome external component) OTA receiver recognises the header magic on the first bytes,
+# strips it, and routes the stream at the seam in a single pass — app bytes to the OTA
+# slot, image bytes straight into this partition. Header layout, big endian:
+#   magic "EPF2" (4) | app_size u32 | image_size u32 | label (32, NUL-padded) |
+#   image MD5 (16) | reserved zeros (4)
+if(CONFIG_ESPHOME_LITTLEFS_PREFILL_PARTITION AND NOT CONFIG_ESPHOME_LITTLEFS_PREFILL_PARTITION STREQUAL "")
+	littlefs_create_partition_image(${CONFIG_ESPHOME_LITTLEFS_PREFILL_PARTITION}
+		"${CONFIG_ESPHOME_LITTLEFS_PREFILL_DIR}" FLASH_IN_PROJECT)
+
+	idf_build_get_property(project_name PROJECT_NAME)
+	idf_build_get_property(build_dir BUILD_DIR)
+	set(prefill_image "${CMAKE_BINARY_DIR}/${CONFIG_ESPHOME_LITTLEFS_PREFILL_PARTITION}.bin")
+	set(prefill_ota "${build_dir}/${project_name}.prefill-ota.bin")
+	idf_build_get_property(python PYTHON)
+	add_custom_target(littlefs_prefill_ota_bin ALL
+		COMMAND ${python} ${CMAKE_CURRENT_LIST_DIR}/tools/make_prefill_ota.py
+			--app ${build_dir}/${project_name}.bin
+			--image ${prefill_image}
+			--label ${CONFIG_ESPHOME_LITTLEFS_PREFILL_PARTITION}
+			--output ${prefill_ota}
+		DEPENDS littlefs_${CONFIG_ESPHOME_LITTLEFS_PREFILL_PARTITION}_bin gen_project_binary
+		VERBATIM)
+endif()

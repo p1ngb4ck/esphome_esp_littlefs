@@ -279,4 +279,22 @@ menu "LittleFS"
             Enable calling esp_task_wdt_reset() during flash read/write/erase operations
             to prevent task watchdog timeouts during long-running filesystem operations.
 
+
+    config ESPHOME_LITTLEFS_PREFILL_PARTITION
+        string "Partition label to pre-fill with a compile-time LittleFS image"
+        default ""
+        help
+            Set by ESPHome's binary_storage codegen (flash_partition: pre_fill:). When
+            non-empty, project_include.cmake builds a LittleFS image from
+            ESPHOME_LITTLEFS_PREFILL_DIR sized to this partition and registers it for
+            flashing (FLASH_IN_PROJECT), plus a combined OTA artifact. Not meant to be
+            set by hand.
+
+    config ESPHOME_LITTLEFS_PREFILL_DIR
+        string "Directory tree baked into the pre-fill image"
+        default ""
+        help
+            Companion of ESPHOME_LITTLEFS_PREFILL_PARTITION; absolute path to the staged
+            file tree. Not meant to be set by hand.
+
 endmenu
