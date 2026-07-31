@@ -30,7 +30,7 @@ function(littlefs_create_partition_image partition base_dir)
 			set(littlefs_py "${littlefs_py_venv}/Scripts/littlefs-python.exe")
 			add_custom_command(
 					OUTPUT ${littlefs_py_venv}
-					COMMAND ${PYTHON} -m venv ${littlefs_py_venv} && ${littlefs_py_venv}/Scripts/pip.exe install -r ${littlefs_py_requirements}
+					COMMAND ${PYTHON} -m venv ${littlefs_py_venv} && ${littlefs_py_venv}/Scripts/pip.exe install --disable-pip-version-check -r ${littlefs_py_requirements}
 					WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
 					DEPENDS ${littlefs_py_requirements}
 			)
@@ -38,7 +38,7 @@ function(littlefs_create_partition_image partition base_dir)
 			set(littlefs_py "${littlefs_py_venv}/bin/littlefs-python")
 			add_custom_command(
 					OUTPUT ${littlefs_py_venv}
-					COMMAND ${PYTHON} -m venv ${littlefs_py_venv} && ${littlefs_py_venv}/bin/pip install -r ${littlefs_py_requirements}
+					COMMAND ${PYTHON} -m venv ${littlefs_py_venv} && ${littlefs_py_venv}/bin/pip install --disable-pip-version-check -r ${littlefs_py_requirements}
 					WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
 					DEPENDS ${littlefs_py_requirements}
 			)
